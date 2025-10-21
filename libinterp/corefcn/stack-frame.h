@@ -230,7 +230,7 @@ public:
         if (fcn->is_anonymous_function ())
           retval += "@<anonymous>";
         else
-          retval += fcn->name ();
+          retval += fcn->canonical_name ();
       }
     else
       retval = "<unknown>";
