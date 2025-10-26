@@ -43,7 +43,7 @@ class type_info;
 
 OCTAVE_END_NAMESPACE(octave)
 
-class octave_classdef : public octave_base_value
+class OCTINTERP_API octave_classdef : public octave_base_value
 {
 public:
 
@@ -77,8 +77,13 @@ public:
 
   bool isstruct () const { return false; }
 
+  // Do not use this method internally to test if octave_value is a classdef
+  // It will return true for BOTH classdefs and old-style classes
   bool isobject () const { return true; }
 
+  bool is_class_object () const { return false; }
+
+  // Prefer this method internally to test if octave_value is a classdef
   bool is_classdef_object () const { return true; }
 
   OCTINTERP_API void print (std::ostream& os, bool pr_as_read_syntax = false);
@@ -154,6 +159,9 @@ public:
   OCTINTERP_API bool save_ascii (std::ostream& os);
 
   OCTINTERP_API bool load_ascii (std::istream& is);
+
+  std::list<std::string> parent_class_name_list () const;
+
 
 public:
 

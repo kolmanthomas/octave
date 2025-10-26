@@ -893,6 +893,24 @@ octave_classdef::metaclass_query (const std::string& cls)
   return octave::to_ov (octave::lookup_class (cls));
 }
 
+std::list<std::string>
+octave_classdef::parent_class_name_list () const
+{
+  auto meta_cls = get_object().get_class();
+
+  Cell c = meta_cls.get ("SuperClasses").cell_value ();
+
+  std::list<std::string> name_list;
+  for (int i = 0; i < c.numel (); i++)
+  {
+      octave_classdef *metacls = c(i).classdef_object_value ();
+      std::string clsname = metacls->get_property (0, "Name").string_value ();
+      name_list.push_back(clsname);
+  }
+
+  return name_list;
+}
+
 bool
 octave_classdef_meta::is_classdef_method (const std::string& cname) const
 {
