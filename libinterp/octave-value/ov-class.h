@@ -168,6 +168,8 @@ public:
 
   bool isobject () const { return true; }
 
+  bool is_class_object () const { return true; }
+
   OCTINTERP_API bool is_true () const;
 
   octave_map map_value () const { return m_map; }

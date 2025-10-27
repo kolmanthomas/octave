@@ -659,6 +659,9 @@ public:
   bool is_package () const
   { return m_rep->is_package (); }
 
+  bool is_class_object () const
+  { return m_rep->is_class_object (); }
+
   bool isobject () const
   { return m_rep->isobject (); }
 

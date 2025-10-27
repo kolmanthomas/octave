@@ -462,6 +462,8 @@ public:
 
   virtual bool isobject () const { return false; }
 
+  virtual bool is_class_object () const { return false; }
+
   virtual bool is_classdef_meta () const { return false; }
 
   virtual bool is_classdef_superclass_ref () const { return false; }
