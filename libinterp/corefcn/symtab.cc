@@ -121,9 +121,6 @@ symbol_table::find_private_function (const std::string& dir_name,
     }
 }
 
-// FIXME: this function only finds legacy class methods, not
-// classdef methods.
-
 octave_value
 symbol_table::find_method (const std::string& name,
                            const std::string& dispatch_type)
