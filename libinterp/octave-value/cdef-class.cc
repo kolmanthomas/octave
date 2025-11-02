@@ -1086,6 +1086,50 @@ cdef_class::make_meta_class (interpreter& interp,
           std::cerr << "class attribute: " << aname << " = "
                     << attribute_value_to_string (attr, avalue) << std::endl;
 #endif
+          if (aname == "InferiorClasses")
+            {
+              // InferiorClasses accepts either a single metaclass like so:
+              //
+              // classdef (InferiorClasses = ?ClassName2) ClassName1
+              //
+              // or a cell array of metaclasses:
+              //
+              // classdef (InferiorClasses = { ?ClassName2, ?ClassName3 }) ClassName1
+              //
+              // We'll take the approach of converting everything to a cell array.
+
+              Cell avalue_cell;
+
+              if (! avalue.iscell ())
+                avalue_cell = Cell (avalue);
+              else
+                avalue_cell = avalue.cell_value ();
+
+              // We'll reject any multidim cell arrays for now
+              // (not sure if this should change?)
+              if (! avalue_cell.isvector ())
+                error ("invalid input for InferiorClasses attribute");
+
+              for (octave_idx_type i = 0; i < avalue_cell.numel (); i++)
+                {
+                  // We go through each element and validate one by one
+                  octave_value avalue_elem = avalue_cell.elem (0, i);
+
+                  if (! avalue_elem.is_classdef_object ())
+                    error ("expected a classdef object for InferiorClasses attribute, got %s", avalue_elem.type_name ().c_str ());
+
+                  octave_classdef * meta_typ = avalue_elem.classdef_object_value ();
+                  octave::cdef_object meta_obj = meta_typ->get_object ();
+
+                  if (! meta_obj.ok () || ! meta_obj.is_meta_object ())
+                    error ("expected a metaclass for InferiorClasses attribute, got a regular classdef");
+
+                  octave_value name = meta_obj.get ("Name");
+                  std::string name_str = name.string_value ();
+
+                  interp.get_symbol_table ().set_class_relationship (class_name, name_str);
+                }
+            }
 
           retval.put (aname, avalue);
         }
