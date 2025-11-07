@@ -52,7 +52,6 @@
 #include "interpreter.h"
 #include "oct-map.h"
 #include "ov-class.h"
-#include "ov-classdef.h"
 #include "ov-complex.h"
 #include "ov-cx-mat.h"
 #include "ov-cx-sparse.h"
@@ -66,7 +65,6 @@
 #include "utils.h"
 #include "variables.h"
 #include "xnorm.h"
-#include "cdef-utils.h"
 
 OCTAVE_BEGIN_NAMESPACE(octave)
 
@@ -1716,62 +1714,6 @@ do_single_type_concat_map (const octave_value_list& args,
 }
 
 static octave_value
-do_single_type_concat_cdef (const octave_value_list& args,
-                           int dim)
-{
-  // Concatenate a list of octave_classdef values of the same 
-  // class along dimension dim
-
-  Array<cdef_object> arr;
-  int n_args = args.length ();
-
-  if (all_scalar_1x1 (args)) // optimize all scalars case.
-    {
-      // Optimize all scalars case.
-      dim_vector dv (1, 1);
-      if (dim == -1 || dim == -2)
-        dim = -dim - 1;
-      else if (dim >= 2)
-        dv.resize (dim+1, 1);
-      dv(dim) = n_args;
-
-      arr.clear (dv);
-
-      for (int j = 0; j < n_args; j++)
-        {
-          octave_quit ();
-
-          arr(j) = args(j).classdef_object_value ()->get_object ();
-        }
-    }
-  else
-    {
-      OCTAVE_LOCAL_BUFFER (Array<cdef_object>, array_list, n_args);
-
-      for (int j = 0; j < n_args; j++)
-        {
-          octave_quit ();
-
-          cdef_object obj = args(j).classdef_object_value ()->get_object ();
-          if (obj.is_array ())
-            array_list[j] = obj.array_value ();
-          else
-            {
-              array_list[j].clear (dim_vector (1,1));
-              array_list[j](0) = obj;
-            }
-        }
-
-      arr = Array<cdef_object>::cat (dim, n_args, array_list);
-    }
-
-  cdef_object obj_result = cdef_object (new cdef_object_array (arr));
-  obj_result.set_class (arr(0).get_class ());
-
-  return to_ov (obj_result);
-}
-
-static octave_value
 attempt_type_conversion (const octave_value& ov, std::string dtype)
 {
   octave_value retval;
@@ -1854,9 +1796,9 @@ do_class_concat (const octave_value_list& ovl,
 
   symbol_table& symtab = interp.get_symbol_table ();
 
-  octave_value ov_fcn = symtab.find_method (cattype, dtype);
+  octave_value fcn = symtab.find_method (cattype, dtype);
 
-  if (ov_fcn.is_defined ())
+  if (fcn.is_defined ())
     {
       // Have method for dominant type.  Call it and let it handle conversions.
 
@@ -1864,7 +1806,7 @@ do_class_concat (const octave_value_list& ovl,
 
       try
         {
-          tmp2 = interp.feval (ov_fcn, ovl, 1);
+          tmp2 = interp.feval (fcn, ovl, 1);
         }
       catch (execution_exception& ee)
         {
@@ -1900,34 +1842,12 @@ do_class_concat (const octave_value_list& ovl,
 
       tmp.resize (j);
 
-      // See if dominant type is a classdef
-      ov_fcn = symtab.find_function (dtype);
-      bool is_classdef = false;
-      if (ov_fcn.is_function ())
-        {
-          octave_function *fcn = ov_fcn.function_value ();
-          if (fcn && fcn->is_classdef_meta ())
-            {
-              octave_classdef_meta *meta_obj
-                = dynamic_cast<octave_classdef_meta *> (fcn);
-              if (meta_obj->is_classdef_constructor ())
-                is_classdef = true;
-            }
-        }
+      octave_map m = do_single_type_concat_map (tmp, dim);
 
-      if (is_classdef)
-          // Default classdef concat
-          retval = do_single_type_concat_cdef(tmp, dim);
-      else
-        {
-          // Default struct-based class concat
-          octave_map m = do_single_type_concat_map (tmp, dim);
+      std::string cname = tmp(0).class_name ();
+      std::list<std::string> parents = tmp(0).parent_class_name_list ();
 
-          std::string cname = tmp(0).class_name ();
-          std::list<std::string> parents = tmp(0).parent_class_name_list ();
-
-          retval = octave_value (new octave_class (m, cname, parents));
-        }
+      retval = octave_value (new octave_class (m, cname, parents));
     }
 
   return retval;
