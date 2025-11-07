@@ -1111,8 +1111,6 @@ Array<T, Alloc>::index (const Array<octave::idx_vector>& ia,
       int ial = ia.numel ();
       const dim_vector& dv = m_dimensions.redim (ial);
       dim_vector dvx = dim_vector::alloc (ial);
-      // Set initial number of columns to 1. Necessary if ial is 1.
-      dvx(1) = 1;
       for (int i = 0; i < ial; i++)
         dvx(i) = ia(i).extent (dv(i));
       if (! (dvx == dv))
