@@ -266,3 +266,35 @@
 %!test <*67362>
 %! obj = class_bug67362 ();
 %! assert (obj.shared_name, 42);
+
+## Test classdef concatenation without conversion
+%!test <*44665>
+%! p = class_pair (3, 5);
+%! p2 = class_pair (7, 4);
+%! y = [p, [p2, p]];
+%! assert (size (y), [1, 3]);
+%! assert ([y.first; y.second], [3, 7, 3; 5, 4, 5]);
+%! z = [y; p2, [p2, p]];
+%! assert (size (z), [2, 3]);
+%! assert ([z.first; z.second], [3, 7, 7, 7, 3, 3; 5, 4, 4, 4, 5, 5]);
+%! v = [z, z; y, p, [p2, p]];
+%! assert (size (v), [3, 6]);
+%%
+%!test <*44665>
+%! p = class_pair (3, 5);
+%! p2 = class_pair (7, 4);
+%! assert( size (horzcat (p, p2, p)), [1, 3]);
+%! assert( size (vertcat (p, p2, p)), [3, 1]);
+%! assert( size (cat (4, p, p2)), [1, 1, 1, 2]);
+
+## Test classdef concatenation using conversion method of non-dominant class
+%!test <*44665>
+%! y = [class_pair_elem(7), class_pair(3, 5)];
+%! assert (class (y), 'class_pair_elem');
+%! assert ([y.value], [7, 3]);
+
+## Test classdef concatenation using constructor of dominant class
+%!test <44665>
+%! y = [class_pair(3, 5), class_pair_elem(7)];
+%! assert (class (y, 'class_pair'));
+%! assert ([y.first; y.second], [3, 7; 5, 0]);
