@@ -15,6 +15,8 @@ classdef_TEST_FILES = \
   %reldir%/class_bug55766.m \
   %reldir%/class_bug66930A.m \
   %reldir%/class_bug66930B.m \
+  %reldir%/class_pair.m \
+  %reldir%/class_pair_elem.m \
   %reldir%/classdef.tst \
   %reldir%/foo_method_changes_property_size.m \
   %reldir%/foo_static_method_constant_property.m \
