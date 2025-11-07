@@ -266,3 +266,94 @@
 %!test <*67362>
 %! obj = class_bug67362 ();
 %! assert (obj.shared_name, 42);
+
+## Test classdef concatenation without conversion
+%!test <*44665>
+%! p = class_pair (3, 5);
+%! p2 = class_pair (7, 4);
+%! y = [p, [p2, p]];
+%! assert (size (y), [1, 3]);
+%! assert ([y.first; y.second], [3, 7, 3; 5, 4, 5]);
+%! z = [y; p2, [p2, p]];
+%! assert (size (z), [2, 3]);
+%! assert ([z.first; z.second], [3, 7, 7, 7, 3, 3; 5, 4, 4, 4, 5, 5]);
+%! v = [z, z; y, p, [p2, p]];
+%! assert (size (v), [3, 6]);
+%%
+%!test <*44665>
+%! p = class_pair (3, 5);
+%! p2 = class_pair (7, 4);
+%! assert( size (horzcat (p, p2, p)), [1, 3]);
+%! assert( size (vertcat (p, p2, p)), [3, 1]);
+%! assert( size (cat (4, p, p2)), [1, 1, 1, 2]);
+
+## Test classdef concatenation using conversion method of non-dominant class
+%!test <*44665>
+%! y = [class_pair_elem(7), class_pair(3, 5)];
+%! assert (class (y), 'class_pair_elem');
+%! assert ([y.value], [7, 3]);
+
+## Test classdef concatenation using constructor of dominant class
+## to convert other classdefs
+%!test <*44665>
+%! y = [class_pair(3, 5), class_pair_elem(7)];
+%! assert (class (y), 'class_pair');
+%! assert ([y.first; y.second], [3, 7; 5, 0]);
+
+## Test classdef concatenation using constructor of dominant class
+## to convert built-in types
+%!test <*44665>
+%! y = class_pair_elem(1);
+%! y = [y, double(2)];
+%! y = [y, single(3)];
+%! y = [y, int8(4)];
+%! y = [y, uint8(5)];
+%! y = [y, int16(6)];
+%! y = [y, uint16(7)];
+%! y = [y, int32(8)];
+%! y = [y, uint32(9)];
+%! y = [y, 'a'];
+%! y = [y, true];
+%! ## Have to declare func handle separately to check equality
+%! f = @(x) x + 1;
+%! y = [y, f];
+%! y = [y, struct("foo", 1)];
+%! y = [y, {1, 2, 3}];
+%! assert (class (y), 'class_pair_elem');
+%! assert (size (y), [1 14]);
+%! assert (y(2).value, double(2));
+%! assert (y(3).value, single(3));
+%! assert (y(4).value, int8(4));
+%! assert (y(5).value, uint8(5));
+%! assert (y(6).value, int16(6));
+%! assert (y(7).value, uint16(7));
+%! assert (y(8).value, int32(8));
+%! assert (y(9).value, uint32(9));
+%! assert (y(10).value, 'a');
+%! assert (y(11).value, true);
+%! assert (y(12).value, f);
+%! assert (y(13).value, struct("foo", 1));
+%! assert (y(14).value, {1, 2, 3});
+
+## Test classdef array concatenation handles COW semantics
+%!test <*44665>
+%! p1 = class_pair_elem (1);
+%! p2 = class_pair_elem (2);
+%! arr = [p1, p2];
+%! p1.value = 3;
+%! ## Array elements should be independent copies (value semantics)
+%! assert (arr(1).value, 1);
+%! assert (arr(2).value, 2);
+%! assert (p1.value, 3);
+
+## Test concatenation edge cases - single object operations
+%!test <*44665>
+%! p1 = class_pair (1, 2);
+%! ## Concatenating single object should preserve dimensions
+%! result = [p1];
+%! assert (size (result), [1, 1]);
+%! assert (result.first, 1);
+%! ## Using cat with single object
+%! result2 = cat (1, p1);
+%! assert (size (result2), [1, 1]);
+%! assert (result2.first, 1);
