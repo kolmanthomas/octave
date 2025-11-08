@@ -1783,6 +1783,8 @@ attempt_type_conversion (const octave_value& ov, std::string dtype)
 
   symbol_table& symtab = interp.get_symbol_table ();
 
+  cdef_manager& mgr = __get_cdef_manager__ ();
+
   octave_value fcn = symtab.find_method (dtype, cname);
 
   if (fcn.is_defined ())
@@ -1811,15 +1813,13 @@ attempt_type_conversion (const octave_value& ov, std::string dtype)
       // dispatch type.
 
       fcn = symtab.find_method (dtype, dtype);
-
-      if (! fcn.is_defined ())
-        error ("no constructor for %s!", dtype.c_str ());
+      auto cls = mgr.find_class(dtype);
 
       octave_value_list result;
 
       try
         {
-          result = interp.feval (fcn, ovl (ov), 1);
+          result = to_ov(cls.construct_object(ovl(ov)));
         }
       catch (execution_exception& ee)
         {

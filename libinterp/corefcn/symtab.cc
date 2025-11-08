@@ -128,8 +128,15 @@ octave_value
 symbol_table::find_method (const std::string& name,
                            const std::string& dispatch_type)
 {
+  cdef_manager& mgr = __get_cdef_manager__();
+
+  auto mth = mgr.find_method(dispatch_type, name);
+
   if (name.empty ())
     return octave_value ();
+
+  if (mth.is_defined() )
+    return mth;
 
   fcn_table_const_iterator p = m_fcn_table.find (name);
 
