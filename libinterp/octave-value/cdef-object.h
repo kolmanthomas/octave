@@ -407,10 +407,7 @@ public:
 
   ~cdef_object_array () = default;
 
-  cdef_object_rep * clone () const
-  {
-    return new cdef_object_array (*this);
-  }
+  cdef_object_rep * clone () const;
 
   dim_vector dims () const { return m_array.dims (); }
 
