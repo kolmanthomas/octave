@@ -213,10 +213,15 @@ public:
 
   std::string canonical_name () const
   {
+    std::string name = m_name;
+
+    if (is_classdef_method () || is_class_method ())
+      name = dispatch_class () + "." + name;
+
     if (m_package_name.empty ())
-      return m_name;
+      return name;
     else
-      return m_package_name + '.' + m_name;
+      return m_package_name + '.' + name;
   }
 
   void document (const std::string& ds) { m_doc = ds; }
