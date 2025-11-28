@@ -423,6 +423,8 @@ public:
 
   ~cdef_object_array () = default;
 
+  void break_closure_cycles (const std::shared_ptr<stack_frame>& frame);
+
   cdef_object_rep * clone () const;
 
   dim_vector dims () const { return m_array.dims (); }
