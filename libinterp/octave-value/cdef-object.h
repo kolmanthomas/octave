@@ -417,6 +417,14 @@ private:
   cdef_object m_klass;
 };
 
+//! Container for arrays of cdef_object
+//!
+//! cdef_object_array is a separate class from cdef_object_scalar for the following:
+//!
+//!   1) (NOT SURE) cdef_object_arrays will always have value semantics
+//!   2) We don't want a single classdef object to have it's own Array<cdef_object> 
+//!      container.
+//!   3) We still have a tree-like inheritance structure even if the two separate
 class OCTINTERP_API cdef_object_array : public cdef_object_base
 {
 public:

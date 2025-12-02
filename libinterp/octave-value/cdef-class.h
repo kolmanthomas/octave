@@ -55,6 +55,8 @@ class tree_classdef;
 // - and second, their name.
 typedef std::pair<unsigned int, std::string> property_key;
 
+//! Class to store compile-time information about a classdef
+//! The attributes of the class are stored 
 class OCTINTERP_API cdef_class : public cdef_meta_object
 {
 private:
