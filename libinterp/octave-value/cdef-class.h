@@ -342,6 +342,8 @@ public:
 
   //! Analyze the tree_classdef tree and transform it to a cdef_class
   //!
+  //! This method is called when a classdef is parsed.
+  //!
   //! <b>All attribute validation should occur here.</b>
   //!
   //! Classdef attribute values can be given in the form of

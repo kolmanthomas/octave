@@ -35,6 +35,11 @@
 #include "cdef-property.h"
 #include "ov-builtin.h"
 
+#define OCTAVE_CDEF_MANAGER_DEBUG 1
+#if OCTAVE_CDEF_MANAGER_DEBUG
+#  include <iostream>
+#endif
+
 OCTAVE_BEGIN_NAMESPACE(octave)
 
 class interpreter;
@@ -64,15 +69,9 @@ public:
   OCTINTERP_API octave_value
   find_package_symbol (const std::string& pack_name);
 
-  void register_class (const cdef_class& cls)
-  {
-    m_all_classes[cls.get_name ()] = cls;
-  }
+  void register_class (const cdef_class& cls);
 
-  void unregister_class (const cdef_class& cls)
-  {
-    m_all_classes.erase(cls.get_name ());
-  }
+  void unregister_class (const cdef_class& cls);
 
   void register_package (const cdef_package& pkg)
   {

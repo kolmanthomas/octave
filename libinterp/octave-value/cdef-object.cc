@@ -35,10 +35,6 @@
 #include "interpreter-private.h"
 #include "ov-classdef.h"
 
-#define OCTAVE_CDEF_OBJECT_DEBUG 0
-#if OCTAVE_CDEF_OBJECT_DEBUG
-#  include <iostream>
-#endif
 
 OCTAVE_BEGIN_NAMESPACE(octave)
 
@@ -867,16 +863,16 @@ cdef_object_scalar::mark_as_constructed (const cdef_class& cls)
 handle_cdef_object::~handle_cdef_object ()
 {
 #if OCTAVE_CDEF_OBJECT_DEBUG
-  std::cerr << "deleting " << get_class ().get_name ()
-            << " object (handle)" << std::endl;
+  std::cerr << YELLOW << "[handle_cdef_object::~handle_cdef_object] " << RESET
+            << "Deleting handle object \"" << get_class ().get_name () << "\"\n";
 #endif
 }
 
 value_cdef_object::~value_cdef_object ()
 {
 #if OCTAVE_CDEF_OBJECT_DEBUG
-  std::cerr << "deleting " << get_class ().get_name ()
-            << " object (value)" << std::endl;
+  std::cerr << YELLOW << "[value_cdef_object::~value_cdef_object] " << RESET
+            << "Deleting value object \"" << get_class ().get_name () << "\"\n";
 #endif
 }
 

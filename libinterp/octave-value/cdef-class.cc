@@ -54,7 +54,7 @@
 #include "pt-walk.h"
 #include "unwind-prot.h"
 
-#define OCTAVE_CDEF_CLASS_DEBUG 0
+#define OCTAVE_CDEF_CLASS_DEBUG 1
 #if OCTAVE_CDEF_CLASS_DEBUG
 #  include <iostream>
 #endif
@@ -942,6 +942,10 @@ cdef_class::cdef_class_rep::construct_object (const octave_value_list& args,
       else
         error ("expecting meta class, property, method, or package in cdef_class::cdef_class_rep::construct_object - please report this bug");
 
+#ifdef OCTAVE_CDEF_CLASS_DEBUG
+      std::cout << MAGENTA << "[cdef_class::construct_object] " << RESET
+                << "Constructed meta object from meta class \"" << get_name() << "\"\n";
+#endif
       return obj;
     }
   else
@@ -957,6 +961,10 @@ cdef_class::cdef_class_rep::construct_object (const octave_value_list& args,
       if (! default_initialize)
         run_constructor (obj, args);
 
+#ifdef OCTAVE_CDEF_CLASS_DEBUG
+      std::cout << MAGENTA << "[cdef_class::construct_object] " << RESET
+                << "Constructed object from class \"" << get_name() << "\"\n";
+#endif
       return obj;
     }
 
@@ -1015,7 +1023,7 @@ cdef_class::make_meta_class (interpreter& interp,
     full_class_name = t->package_name () + '.' + full_class_name;
 
 #if OCTAVE_CDEF_CLASS_DEBUG
-  std::cerr << "class: " << full_class_name << std::endl;
+  std::cout << MAGENTA << "[cdef_class::make_meta_class] " << RESET << "Making class: " << full_class_name << "\n";
 #endif
 
   // Push a dummy scope frame on the call stack that corresponds to
@@ -1036,10 +1044,6 @@ cdef_class::make_meta_class (interpreter& interp,
         {
           std::string sclass_name = (scls)->class_name ();
 
-#if OCTAVE_CDEF_CLASS_DEBUG
-          std::cerr << "superclass: " << sclass_name << std::endl;
-#endif
-
           cdef_class sclass = lookup_class (sclass_name);
 
           if (sclass.get ("Sealed").bool_value ())
@@ -1047,6 +1051,10 @@ cdef_class::make_meta_class (interpreter& interp,
                    full_class_name.c_str (), sclass_name.c_str ());
 
           slist.push_back (sclass);
+
+#if OCTAVE_CDEF_CLASS_DEBUG
+            std::cout << MAGENTA << "[cdef_class::make_meta_class] " << RESET << "Registered \"" << sclass_name << "\" as a superclass for \"" << full_class_name << "\"\n";
+#endif
         }
     }
 
@@ -1081,10 +1089,6 @@ cdef_class::make_meta_class (interpreter& interp,
           std::string aname = attr->ident ()->name ();
           octave_value avalue = compute_attribute_value (tw, attr);
 
-#if OCTAVE_CDEF_CLASS_DEBUG
-          std::cerr << "class attribute: " << aname << " = "
-                    << attribute_value_to_string (attr, avalue) << std::endl;
-#endif
           if (aname == "InferiorClasses")
             {
               // InferiorClasses accepts either a single metaclass like so:
@@ -1131,6 +1135,12 @@ cdef_class::make_meta_class (interpreter& interp,
             }
 
           retval.put (aname, avalue);
+#if OCTAVE_CDEF_CLASS_DEBUG
+          std::cout << MAGENTA << "[cdef_class::make_meta_class] " << RESET
+                    << "Registered attribute \"" << aname << "\" = "
+                    << attribute_value_to_string (attr, avalue) 
+                    << " for class " << full_class_name << std::endl;
+#endif
         }
     }
 
@@ -1154,10 +1164,6 @@ cdef_class::make_meta_class (interpreter& interp,
         {
           std::map<std::string, octave_value> amap;
 
-#if OCTAVE_CDEF_CLASS_DEBUG
-          std::cerr << "method block" << std::endl;
-#endif
-
           // Method attributes
 
           if (mb_p->attribute_list ())
@@ -1166,12 +1172,6 @@ cdef_class::make_meta_class (interpreter& interp,
                 {
                   std::string aname = attr_p->ident ()->name ();
                   octave_value avalue = compute_attribute_value (tw, attr_p);
-
-#if OCTAVE_CDEF_CLASS_DEBUG
-                  std::cerr << "method attribute: " << aname << " = "
-                            << attribute_value_to_string (attr_p, avalue)
-                            << std::endl;
-#endif
 
                   amap[aname] = avalue;
                 }
@@ -1195,12 +1195,6 @@ cdef_class::make_meta_class (interpreter& interp,
                   else
                     {
                       cdef_method meth = cdm.make_method (retval, mname, mtd);
-
-#if OCTAVE_CDEF_CLASS_DEBUG
-                      std::cerr << (mname == class_name ? "constructor"
-                                                        : "method")
-                                << ": " << mname << std::endl;
-#endif
 
                       // FIXME: instead of attaching attributes here,
                       // pass them to cdef_manager::make_method.  The
@@ -1266,10 +1260,6 @@ cdef_class::make_meta_class (interpreter& interp,
         {
           std::map<std::string, octave_value> amap;
 
-#if OCTAVE_CDEF_CLASS_DEBUG
-          std::cerr << "property block" << std::endl;
-#endif
-
           // Property attributes
 
           if (pb_p->attribute_list ())
@@ -1278,12 +1268,6 @@ cdef_class::make_meta_class (interpreter& interp,
                 {
                   std::string aname = attr_p->ident ()->name ();
                   octave_value avalue = compute_attribute_value (tw, attr_p);
-
-#if OCTAVE_CDEF_CLASS_DEBUG
-                  std::cerr << "property attribute: " << aname << " = "
-                            << attribute_value_to_string (attr_p, avalue)
-                            << std::endl;
-#endif
 
                   if (aname == "Access")
                     {
@@ -1308,8 +1292,10 @@ cdef_class::make_meta_class (interpreter& interp,
                   prop.doc_string (prop_p->doc_string ());
 
 #if OCTAVE_CDEF_CLASS_DEBUG
-                  std::cerr << "property: " << prop_p->ident ()->name ()
-                            << std::endl;
+                  std::cout << MAGENTA << "[cdef_class::make_meta_class] " << RESET
+                            << "For class \"" << full_class_name << "\": "
+                            << "Registered property \"" << prop_p->ident ()->name ()
+                            << "\"\n";
 #endif
 
                   tree_expression *expr = prop_p->expression ();
@@ -1318,7 +1304,9 @@ cdef_class::make_meta_class (interpreter& interp,
                       octave_value pvalue = expr->evaluate (tw);
 
 #if OCTAVE_CDEF_CLASS_DEBUG
-                      std::cerr << "property default: "
+                      std::cerr << MAGENTA << "[cdef_class::make_meta_class] " << RESET
+                                << "..... Default value of \""
+                                << prop_p->ident ()->name () << "\" is: "
                                 << attribute_value_to_string (prop_p, pvalue)
                                 << std::endl;
 #endif

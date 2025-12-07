@@ -694,7 +694,13 @@ cdef_manager::find_method_symbol (const std::string& method_name,
       cdef_method meth = cls.find_method (method_name);
 
       if (meth.ok ())
-        return octave_value (new octave_classdef_meta (meth));
+        {
+#ifdef OCTAVE_CDEF_MANAGER_DEBUG
+          std::cout << CYAN << "[cdef_manager::find_method_symbol] " << RESET
+                    << "Found method \"" << meth.class_name () << "\"\n";
+#endif
+          return octave_value (new octave_classdef_meta (meth));
+        }
     }
 
   return octave_value ();
@@ -749,6 +755,26 @@ cdef_manager::find_package_symbol (const std::string& pack_name)
     return octave_value (new octave_classdef_meta (pack));
 
   return octave_value ();
+}
+
+void 
+cdef_manager::register_class (const cdef_class& cls)
+{
+  m_all_classes[cls.get_name ()] = cls;
+#ifdef OCTAVE_CDEF_MANAGER_DEBUG
+  std::cout << CYAN << "[cdef_manager::register_class] " << RESET
+            << "Registered class: " << cls.get_name () << "\n";
+#endif
+}
+
+void 
+cdef_manager::unregister_class (const cdef_class& cls)
+{
+  m_all_classes.erase(cls.get_name ());
+#ifdef OCTAVE_CDEF_MANAGER_DEBUG
+  std::cout << CYAN << "[cdef_manager::unregister_class] " << RESET
+            << "Unregistered class: " << cls.get_name () << "\n";
+#endif
 }
 
 cdef_class
@@ -896,6 +922,12 @@ cdef_manager::make_method (const cdef_class& cls, const std::string& name,
 
   if (is_dummy_method (fcn))
     meth.mark_as_external (cls.get_name ());
+
+#ifdef OCTAVE_CDEF_MANAGER_DEBUG
+  std::cout << CYAN << "[cdef_manager::make_method] " << RESET
+            << "Made method \"" << name << "\" "  
+            << "for class \"" << cls.get_name() << "\"\n";
+#endif
 
   return meth;
 }
