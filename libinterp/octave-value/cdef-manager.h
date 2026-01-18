@@ -35,7 +35,6 @@
 #include "cdef-property.h"
 #include "ov-builtin.h"
 
-#define OCTAVE_CDEF_MANAGER_DEBUG 1
 #if OCTAVE_CDEF_MANAGER_DEBUG
 #  include <iostream>
 #endif

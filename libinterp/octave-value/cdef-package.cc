@@ -47,7 +47,6 @@
 #include "pt-misc.h"
 #include "pt-stmt.h"
 
-#define OCTAVE_CDEF_PACKAGE_DEBUG 0
 #if OCTAVE_CDEF_PACKAGE_DEBUG
 #  include <iostream>
 #endif

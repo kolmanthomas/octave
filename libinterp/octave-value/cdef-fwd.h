@@ -41,6 +41,10 @@ class OCTINTERP_API cdef_package;
 #define MAGENTA "\033[35m"      /* Magenta */
 #define YELLOW  "\033[33m"      /* Yellow */
 
+#define OCTAVE_CDEF_OBJECT_DEBUG 0
+#define OCTAVE_CDEF_CLASS_DEBUG 0
+#define OCTAVE_CDEF_MANAGER_DEBUG 0
+#define OCTAVE_CDEF_PACKAGE_DEBUG 0
 
 
 OCTAVE_END_NAMESPACE(octave)

@@ -39,7 +39,6 @@
 #include "ov.h"
 #include "ovl.h"
 
-#define OCTAVE_CDEF_OBJECT_DEBUG 1
 #if OCTAVE_CDEF_OBJECT_DEBUG
 #  include <iostream>
 #endif
@@ -656,7 +655,7 @@ public:
 
   cdef_object_rep * clone () const
   {
-#ifdef OCTAVE_CDEF_OBJECT_DEBUG
+#if OCTAVE_CDEF_OBJECT_DEBUG
     std::cout << YELLOW << "[value_cdef_object::clone] " << RESET
               << "Cloned a copy of the object of class \""
               << class_name () << "\"\n";

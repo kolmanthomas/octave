@@ -54,7 +54,6 @@
 #include "pt-walk.h"
 #include "unwind-prot.h"
 
-#define OCTAVE_CDEF_CLASS_DEBUG 1
 #if OCTAVE_CDEF_CLASS_DEBUG
 #  include <iostream>
 #endif
@@ -942,7 +941,7 @@ cdef_class::cdef_class_rep::construct_object (const octave_value_list& args,
       else
         error ("expecting meta class, property, method, or package in cdef_class::cdef_class_rep::construct_object - please report this bug");
 
-#ifdef OCTAVE_CDEF_CLASS_DEBUG
+#if OCTAVE_CDEF_CLASS_DEBUG
       std::cout << MAGENTA << "[cdef_class::construct_object] " << RESET
                 << "Constructed meta object from meta class \"" << get_name() << "\"\n";
 #endif
@@ -961,7 +960,7 @@ cdef_class::cdef_class_rep::construct_object (const octave_value_list& args,
       if (! default_initialize)
         run_constructor (obj, args);
 
-#ifdef OCTAVE_CDEF_CLASS_DEBUG
+#if OCTAVE_CDEF_CLASS_DEBUG
       std::cout << MAGENTA << "[cdef_class::construct_object] " << RESET
                 << "Constructed object from class \"" << get_name() << "\"\n";
 #endif
