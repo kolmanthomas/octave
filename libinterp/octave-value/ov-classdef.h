@@ -57,6 +57,17 @@ public:
 
   ~octave_classdef () = default;
 
+  octave_value all (int a) const
+  {
+    return new octave_classdef (m_object.all(a));
+  }
+
+  octave_value any (int a) const
+  {
+    return new octave_classdef (m_object.any(a));
+  }
+
+
   octave_base_value * clone () const
   {
     return new octave_classdef (m_object.clone ());

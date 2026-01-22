@@ -70,6 +70,19 @@ public:
     err_invalid_object ("set_class");
   }
 
+  // Not implemented by default
+  virtual cdef_object_rep * all (int) const
+  {
+    err_invalid_object ("all");
+  }
+
+  // Not implemented by default
+  virtual cdef_object_rep * any (int) const
+  {
+    err_invalid_object ("any");
+  }
+
+
   virtual cdef_object_rep * clone () const
   {
     err_invalid_object ("clone");
@@ -248,6 +261,12 @@ public:
 
     return *this;
   }
+
+  cdef_object all (int a) const
+  { return cdef_object (m_rep->all (a)); }
+
+  cdef_object any (int a) const
+  { return cdef_object (m_rep->any (a)); }
 
   OCTINTERP_API cdef_class get_class () const;
 
